@@ -49,11 +49,6 @@ type Identifier struct {
 	Value string
 }
 
-type IntegerLiteral struct {
-	Token token.Token
-	Value int64
-}
-
 func (ls *LetStatement) statementNode()       {}
 func (ls *LetStatement) TokenLiteral() string { return ls.Token.Literal }
 
@@ -111,6 +106,11 @@ func (p *Program) tokenLiteral() string {
 	}
 }
 
+type IntegerLiteral struct {
+	Token token.Token
+	Value int64
+}
+
 func (il *IntegerLiteral) expressionNode()      {}
 func (il *IntegerLiteral) TokenLiteral() string { return il.Token.Literal }
 func (il *IntegerLiteral) String() string       { return il.Token.Literal }
@@ -159,3 +159,12 @@ func (ie *InfixExpression) String() string {
 
 	return out.String()
 }
+
+type Boolean struct {
+	Token token.Token
+	Value bool
+}
+
+func (b *Boolean) expressionNode()      {}
+func (b *Boolean) TokenLiteral() string { return b.Token.Literal }
+func (b *Boolean) String() string       { return b.Token.Literal }

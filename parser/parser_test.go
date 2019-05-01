@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"interpreter/ast"
 	"interpreter/lexer"
+	"strconv"
 	"testing"
 )
 
@@ -102,7 +103,7 @@ func TestIdentifierExpression(t *testing.T) {
 
 }
 
-func TestIntegerExpression(t *testing.T) {
+func TestIntegerLiteralExpression(t *testing.T) {
 	input := "5;"
 	l := lexer.New(input)
 	p := New(l)
@@ -121,19 +122,52 @@ func TestIntegerExpression(t *testing.T) {
 	literal, ok := stmt.Expression.(*ast.IntegerLiteral)
 
 	if !ok {
-		t.Fatalf("exp not *ast.Identifier. got=%T", stmt.Expression)
+		t.Fatalf("exp not *ast.IntegerLiteral. got=%T", stmt.Expression)
 	}
 
 	if literal.Value != 5 {
-		t.Errorf("ident.Value not %d. got=%d", 5, literal.Value)
+		t.Errorf("literal.Value not %d. got=%d", 5, literal.Value)
 	}
 
 	if literal.TokenLiteral() != "5" {
-		t.Errorf("ident.TokenLiteral not %s. got=%s", "5", literal.TokenLiteral())
+		t.Errorf("literal.TokenLiteral not %s. got=%s", "5", literal.TokenLiteral())
 	}
-
 }
 
+func TestBooleanExpression(t *testing.T) {
+	input := `
+true;
+false;
+`
+	expect := []bool{true, false}
+	l := lexer.New(input)
+	p := New(l)
+
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 2 {
+		t.Fatalf("program.Statements does not contain 2 statements. got=%d", len(program.Statements))
+	}
+
+	for i, stmt := range program.Statements {
+		stmt, ok := stmt.(*ast.ExpressionStatement)
+		if !ok {
+			t.Errorf("stmt not ast.ExpressionStatement. got=%T", stmt)
+			continue
+		}
+		b, ok := stmt.Expression.(*ast.Boolean)
+		if !ok {
+			t.Fatalf("exp not *ast.Boolean. got=%T", stmt.Expression)
+		}
+		if b.Value != expect[i] {
+			t.Errorf("boolean.Value not %t. got%t", expect[i], b.Value)
+		}
+		if b.TokenLiteral() != strconv.FormatBool(expect[i]) {
+			t.Errorf("returnStmt.TokenLiteral not %q, got %q", strconv.FormatBool(expect[i]), b.TokenLiteral())
+		}
+	}
+}
 func TestParsingPrefixExpressions(t *testing.T) {
 	prefixTests := []struct {
 		input        string
