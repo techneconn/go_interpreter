@@ -28,9 +28,51 @@ func Eval(node ast.Node) object.Object {
 		// Only 1 instance for true and false.
 		// We are just returning a reference to them.
 		return nativeBoolToBooleanObject(node.Value)
+
+	case *ast.PrefixExpression:
+		right :=Eval(node.Right)
+		return evalPrefixExpression(node.Operator, right)
 	}
 
 	return nil
+}
+
+func evalPrefixExpression(operator string, right object.Object) object.Object {
+	switch operator {
+	case "!":
+		return evalBangOperatorEcpression(right)
+
+	case "-":
+		return evalMinusPrefixOperatorExpression(right)
+
+	default:
+		return NULL
+	}
+}
+
+func evalBangOperatorEcpression(right object.Object) object.Object {
+	switch right {
+	case TRUE:
+		return FALSE
+
+	case FALSE:
+		return TRUE
+
+	case NULL:
+	return TRUE
+
+	default:
+		return FALSE
+	}
+}
+
+func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
+	if right.Type() != object.INTEGER_OBJ {
+		return NULL
+	}
+	value := right.(*object.Integer).Value
+	return &object.Integer{Value: -value}
+
 }
 
 func nativeBoolToBooleanObject(input bool) *object.Boolean {
